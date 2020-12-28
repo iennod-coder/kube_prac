@@ -1,0 +1,65 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: hello-svc
+  labels:
+    app.kubernetes.io/name: signavio
+spec:
+  ports:
+    - protocol: TCP
+      port: 8000
+      targetPort: 8000
+      nodePort: 30089
+  selector:
+    app.kubernetes.io/name: signavio
+  type: NodePort
+  sessionAffinity: None
+  externalTrafficPolicy: Cluster
+status:
+  loadBalancer: {}
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: reverse-svc
+  labels:
+    app.kubernetes.io/name: signavio
+spec:
+  ports:
+    - protocol: TCP
+      port: 8001
+      targetPort: 8001
+      nodePort: 30088
+  selector:
+    app.kubernetes.io/name: signavio
+  type: NodePort
+  sessionAffinity: None
+  externalTrafficPolicy: Cluster
+status:
+  loadBalancer: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/name: signavio
+  name: hello-world
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: signavio
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: signavio
+    spec:
+      containers:
+        - image: iennodcoder/serverimage:0.2
+          name: server-world
+          ports:
+            - containerPort: 8000
+        - image: iennodcoder/clientimage:0.2
+          name: client-world
+          ports:
+            - containerPort: 8001
